@@ -58,7 +58,8 @@ public class Main extends JFrame{
             System.out.println("6. Mostrar las cesiones realizadas ");
             System.out.println("7. Ingresar gastos a moto");
             System.out.println("8. Eliminar miembro");
-            System.out.println("9. Salir del programa ");
+            System.out.println("9. Miembros con mas cesiones");
+            System.out.println("10. Salir del programa ");
             System.out.print("\nIngrese el Nº de la opcion que desea: ");
             scan = scanner.nextLine();
             if(!comprobarValor(scan))
@@ -90,6 +91,8 @@ public class Main extends JFrame{
                     eliminarMiembro();
                     break;
                 case 9:
+                    miembrosConMasCesiones();
+                case 10:
                     Salir();
                     ok = true;
                     break;                    
@@ -320,7 +323,7 @@ public Boolean comprobarMatricula(String n){
         String aux1, aux2;
         aux1 = n.substring(0,3);
         aux2 = n.substring(4,7);
-        return !(!(comprobarValor(aux1))||!((Character.isLetter(aux2.charAt(0)))&&(Character.isLetter(aux2.charAt(2)))&&(Character.isLetter(aux2.charAt(3)))));
+        return !(!(comprobarValor(aux1)));
     }
 
     /*
@@ -515,6 +518,52 @@ public Boolean comprobarMatricula(String n){
             }
         }
         return;
+    }
+    
+    public void miembrosConMasCesiones(){
+        int max=0, miembro;
+        if(cesiones.size()<1)
+            System.out.println("!!!Aun no ha sido realizada ninguna cesion!!!");
+        else{
+            System.out.println("Los siguientes miembros son los que mas seciones han recibido: ");
+            System.out.println("\n ID\tNombre\t\t\tNº de motos\tCoste total\n");
+            ArrayList<Integer> aux = new ArrayList<>();
+            ArrayList <Miembro> auxmiembro = new ArrayList();
+            for(Cesion cesion1:cesiones){
+                aux.add(cesion1.getFuturo().getId_miembro());
+            }
+            Set<Integer> quipu = new HashSet<Integer>(aux);
+            for (Integer key : quipu) {
+                if(Collections.frequency(aux, key)>max){
+                    max =Collections.frequency(aux, key);
+                }
+            }
+            for (Integer key : quipu) {
+                if(Collections.frequency(aux, key)==max){
+                    auxmiembro.add(returnMiembro(key));
+                }
+            }
+            for (Miembro miembro1: miembros) {
+                System.out.println(miembro1);
+                System.out.println("\nLas motos cedidas a este socio fueron las siguientes: \n");
+                System.out.println("\n ID\tModelo\t\t\tCoste\n\n");
+                for(Cesion cesion1:cesiones){
+                    if((miembro1.getId_miembro())==(cesion1.getFuturo().getId_miembro()))
+                        System.out.println(cesion1.getMoto());
+                }
+            }
+            
+    }
+    
+    }
+    
+    public Miembro returnMiembro(int id){
+        Miembro aux = null;
+        for(Miembro miembro1:miembros){
+            if(id == miembro1.getId_miembro())
+                aux = miembro1;
+        }
+        return aux;
     }
     
     public static void main(String[] args){

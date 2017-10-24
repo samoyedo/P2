@@ -25,7 +25,13 @@ public class Cesion {
         this.idcesion = id;
         this.fecha = fecha;
     }
+    public Miembro getFuturo() {
+        return futuro;
+    }
     
+    public Moto getMoto() {
+        return moto;
+    }
     public String toString()
     {
         return "\nCesion Nº: "+idcesion+"\t\tFecha: "+fecha+"\nPropietario:\n\t"+ actual+"\nDestinatario:\n\t"+futuro+"\nMoto cedida:\n\t"+moto;
