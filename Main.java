@@ -124,7 +124,7 @@ public class Main extends JFrame{
         y el coste total de motos que posee el miembro no superen los 6000 euros.
     */
     public void registrarMoto(){
-        Boolean ok=false; String c, matri, gastos;
+        Boolean ok=false; String cost, matri, gastos;
         //Opcion ingresada para que el usuario pueda volver al menu en caso de arrepentirse o ingresar por error en esta opcion
         System.out.println("\n---------------------------------\n"
                 + "Para regresar al menu ingrese 's'\n---------------------------------");
@@ -145,34 +145,34 @@ public class Main extends JFrame{
             if(mat_scann.length()< 0)
                 System.out.println("\n!!!NO valido!!!, debe ingresar un dato");
             else if((mat_scann.length()==1)&&("s".equals(mat_scann))) return;
-            else if (mat_scann.length()!= 7)
-                System.out.println("\n!!!NO valido!!!, debe ingresar un dato");
+            else if ((mat_scann.length()!= 7)||(!(comprobarMatricula(mat_scann))))
+                System.out.println("\n!!!NO valido!!!, los datos ingresados no corresponden a una matricula");
             else break;
         }while(true);
         
         do{
             System.out.print("\nIngrese coste en euros: ");
-            c = scanner.nextLine();
+            cost = scanner.nextLine();
             //Se comprueba que el dato ingresado se un entero y que no este en negativo
-            if((!comprobarValor(c)) || (Integer.parseInt(c)<0))
+            if((!comprobarValor(cost)) || (Integer.parseInt(cost)<0))
                 System.out.println("\n!!!El valor introducido no es valido!!!");
             else break;
         }while(true);
         
         do{
             System.out.print("\nIngrese otros gastos en euros: ");
-            c = scanner.nextLine();
+            gastos = scanner.nextLine();
             //Se comprueba que el dato ingresado se un entero y que no este en negativo
-            if((!comprobarValor(c)) || (Integer.parseInt(c)<0))
+            if((!comprobarValor(gastos)) || (Integer.parseInt(gastos)<0))
                 System.out.println("\n!!!El valor introducido no es valido!!!");
             else break;
         }while(true);
         
-        moto = new Moto(scan ,++id_moto, Integer.parseInt(c), mat_scann);
+        moto = new Moto(scan ,++id_moto, Integer.parseInt(cost), Integer.parseInt(gastos), mat_scann);
         for (Miembro miembro1 : miembros) {
-            if(((Integer.parseInt(c) + miembro1.getCoste_moto()) <= max_coste_moto)&&(miembro1.AsignarMoto(moto))){
+            if(((Integer.parseInt(cost)+ Integer.parseInt(gastos) + miembro1.getCoste_moto()) <= max_coste_moto)&&(miembro1.AsignarMoto(moto))){
                 motos.add(moto);
-                c = miembro1.getNombre();
+                cost = miembro1.getNombre();
                 ok = true;
                 break;
             }
@@ -186,7 +186,7 @@ public class Main extends JFrame{
         else
             System.out.println("\n**********************************************************\n  "
                     + "!!!La operacion fue realizada con exito!!! \n  La moto "+scan+" fue asignado al "
-                    + "socio "+c+"\n**********************************************************");
+                    + "socio "+cost+"\n**********************************************************");
     }
     
     /*
@@ -292,6 +292,10 @@ public class Main extends JFrame{
         return aux.stream().noneMatch((moto1) -> (moto1.getId_moto()==m));
     }
     
+    public Boolean comprobarMotoAsociacion(int m){
+        return motos.stream().anyMatch((moto1) -> (m==moto1.getId_moto()));
+    }
+    
     /*
         Se comprueba que el string pasado como argumento se corresponde a un numero
     */
@@ -310,9 +314,7 @@ public Boolean comprobarMatricula(String n){
         String aux1, aux2;
         aux1 = n.substring(0,3);
         aux2 = n.substring(4,7);
-        if(!(comprobarValor(aux1))||((Character.isLetter(aux2.charAt(0)))&&(Character.isLetter(aux2.charAt(2)))&&(Character.isLetter(aux2.charAt(3)))))
-                return false;
-        return true;
+        return !(!(comprobarValor(aux1))||!((Character.isLetter(aux2.charAt(0)))&&(Character.isLetter(aux2.charAt(2)))&&(Character.isLetter(aux2.charAt(3)))));
     }
 
     /*
@@ -403,7 +405,37 @@ public Boolean comprobarMatricula(String n){
     }
     
     public void ingresarGastosMoto(){
+        String gastos;
+        System.out.println("Listado de motos que pertenecen a la asociacion \n");
+        listarMotos();
         
+        System.out.print("\nSeleccionar Nº de ID de moto para la operacion: ");
+        do{
+            scan = scanner.nextLine();
+            if("s".equals(scan)) return;
+            //Se comprueba que el dato introducido sea un numero y que se corresponda con el id de alguna de las motos que posee el socio
+            if((!comprobarValor(scan))||(!comprobarMotoAsociacion(Integer.parseInt(scan))))
+                System.out.print("\n!!!Nº de ID incorrecto!!!, vuelva a ingresar el Nº de ID de moto: ");
+            else break;
+           
+        }while(true);
+        
+        do{
+            System.out.print("\nIngrese el importe a incrementar en euros: ");
+            gastos = scanner.nextLine();
+            if("s".equals(gastos)) return;
+            //Se comprueba que el dato ingresado se un entero y que no este en negativo
+            if((!comprobarValor(gastos)) || (Integer.parseInt(gastos)<0))
+                System.out.println("\n!!!El valor introducido no es valido!!!");
+            else break;
+        }while(true);
+        
+        motos.get(Integer.parseInt(scan)-1).setGastos(Integer.parseInt(gastos));
+        
+        System.out.println("\n**********************************************************\n  "
+                    + "!!!La operacion fue realizada con exito!!! \n  La moto "+motos.get(Integer.parseInt(scan)-1).getModelo()+" tiene ahora un "
+                    + "gasto total de "+motos.get(Integer.parseInt(scan)-1).getGastos()+"\n**********************************************************");
+       
     }
     
     public static void main(String[] args){

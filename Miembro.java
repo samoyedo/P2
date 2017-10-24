@@ -33,7 +33,7 @@ public class Miembro {
     public int getCoste_moto() {
         int coste_moto=0;
         for(int i=0; i<motos.size(); i++)
-            coste_moto += motos.get(i).getCoste();
+            coste_moto += motos.get(i).getCosteTotal();
         return coste_moto;
     }
 

@@ -16,13 +16,13 @@ public class Moto {
     private int id_moto, coste, gastos;
     
     
-    public Moto(String m,int id, int c,/* int g,*/ String mt)
+    public Moto(String m,int id, int c, int g, String mt)
     {
         this.modelo = m;
         this.id_moto = id;
         this.coste = c;
         this.matricula = mt;
-     //   this.gastos = g;
+        this.gastos = g;
     }
 
     public String getModelo() {
@@ -37,12 +37,20 @@ public class Moto {
         return coste;
     }
     
+    public int getCosteTotal() {
+        return coste+gastos;
+    }
+    
     public String getMatricula() {
         return matricula;
     }
     
     public int getGastos() {
         return gastos;
+    }
+    
+    public void setGastos(int g) {
+        gastos += g;
     }
     
     public String toString()
