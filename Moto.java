@@ -1,4 +1,4 @@
-package is2_practica1;
+package is2_practica1.P2;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -12,17 +12,17 @@ package is2_practica1;
  */
 public class Moto {
     
-    private String modelo;
-    private int id_moto;
-    
-    private int coste;
+    private String modelo, matricula;
+    private int id_moto, coste, gastos;
     
     
-    public Moto(String m,int id, int c)
+    public Moto(String m,int id, int c,/* int g,*/ String mt)
     {
         this.modelo = m;
         this.id_moto = id;
         this.coste = c;
+        this.matricula = mt;
+     //   this.gastos = g;
     }
 
     public String getModelo() {
@@ -35,6 +35,14 @@ public class Moto {
 
     public int getCoste() {
         return coste;
+    }
+    
+    public String getMatricula() {
+        return matricula;
+    }
+    
+    public int getGastos() {
+        return gastos;
     }
     
     public String toString()

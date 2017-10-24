@@ -1,4 +1,4 @@
-package is2_practica1;
+package is2_practica1.P2;
 
 
 import java.util.ArrayList;

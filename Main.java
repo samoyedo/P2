@@ -1,7 +1,7 @@
-package is2_practica1;
+package is2_practica1.P2;
 
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Scanner;
 import javax.swing.JFrame;
 import java.io.*;
@@ -16,8 +16,9 @@ import java.io.*;
  * @author Salvador Andres y Julio Ayala
  */
 public class Main extends JFrame{
-    private static int id_miembro = 0, id_moto = 0, id_cesion = 0;
-    private String scan, fich;
+    private static int id_miembro = 0, id_moto = 0, id_cesion = 0, max_coste_moto;
+    private String scan, fich, mat_scann;
+    private Date fecha;
     private Miembro miembro;
     private ArrayList <Miembro> miembros = new ArrayList();
     private Moto moto;
@@ -32,10 +33,23 @@ public class Main extends JFrame{
     
     public void Menu(){
         Boolean ok;
+            
+        System.out.print("Igrese el valor maximo de transacciones: ");
+        do{
+            scan = scanner.nextLine();
+            if(scan.length()<1)
+                System.out.println("\n!!!NO valido!!!, debe ingresar un dato");
+            else if((!comprobarValor(scan)) || (Integer.parseInt(scan)<0))
+                System.out.println("\n!!!El valor introducido no es valido!!!");
+            else break;
+        }while(true);
+        
+        max_coste_moto = Integer.parseInt(scan);
+        
         do
         { 
             ok = false;
-        
+            
             System.out.println("\n1. Registrar nuevo miembro ");
             System.out.println("2. Registrar una nueva motocicleta");
             System.out.println("3. Registrar una cesión ");
@@ -68,6 +82,8 @@ public class Main extends JFrame{
                     mostrarCesiones();
                     break;
                 case 7:
+                    ingresarGastosMoto();
+                case 8:
                     Salir();
                     ok = true;
                     break;                    
@@ -108,7 +124,7 @@ public class Main extends JFrame{
         y el coste total de motos que posee el miembro no superen los 6000 euros.
     */
     public void registrarMoto(){
-        Boolean ok=false; String c;
+        Boolean ok=false; String c, matri, gastos;
         //Opcion ingresada para que el usuario pueda volver al menu en caso de arrepentirse o ingresar por error en esta opcion
         System.out.println("\n---------------------------------\n"
                 + "Para regresar al menu ingrese 's'\n---------------------------------");
@@ -121,6 +137,19 @@ public class Main extends JFrame{
             else break;
         }while(true);
         if("s".equals(scan)) return;
+        
+        do{
+            System.out.print("\nIngrese la matricula: ");
+            mat_scann = scanner.nextLine();
+            //Evitamos que el usuario deje este campo en blanco
+            if(mat_scann.length()< 0)
+                System.out.println("\n!!!NO valido!!!, debe ingresar un dato");
+            else if((mat_scann.length()==1)&&("s".equals(mat_scann))) return;
+            else if (mat_scann.length()!= 7)
+                System.out.println("\n!!!NO valido!!!, debe ingresar un dato");
+            else break;
+        }while(true);
+        
         do{
             System.out.print("\nIngrese coste en euros: ");
             c = scanner.nextLine();
@@ -129,9 +158,19 @@ public class Main extends JFrame{
                 System.out.println("\n!!!El valor introducido no es valido!!!");
             else break;
         }while(true);
-        moto = new Moto(scan ,++id_moto, Integer.parseInt(c));
+        
+        do{
+            System.out.print("\nIngrese otros gastos en euros: ");
+            c = scanner.nextLine();
+            //Se comprueba que el dato ingresado se un entero y que no este en negativo
+            if((!comprobarValor(c)) || (Integer.parseInt(c)<0))
+                System.out.println("\n!!!El valor introducido no es valido!!!");
+            else break;
+        }while(true);
+        
+        moto = new Moto(scan ,++id_moto, Integer.parseInt(c), mat_scann);
         for (Miembro miembro1 : miembros) {
-            if(((Integer.parseInt(c) + miembro1.getCoste_moto()) <= 6000)&&(miembro1.AsignarMoto(moto))){
+            if(((Integer.parseInt(c) + miembro1.getCoste_moto()) <= max_coste_moto)&&(miembro1.AsignarMoto(moto))){
                 motos.add(moto);
                 c = miembro1.getNombre();
                 ok = true;
@@ -209,12 +248,12 @@ public class Main extends JFrame{
             if((!comprobarValor(destinatario))||(!comprobarSocio(Integer.parseInt(destinatario)))||(destinatario.equals(propietario)))
                 System.out.print("\n!!!Nº de socio incorrecto!!!, vuelva a ingresar el Nº de socio: ");
             //Se comprueba que la suma del coste de la moto seleccionada para la cesion y coste total de motos que posee el socio seleccionado superan los 6000
-            else if(((miembros.get(Integer.parseInt(destinatario)-1).getCoste_moto())+(motos.get(Integer.parseInt(idmoto)-1).getCoste()))>6000)
+            else if(((miembros.get(Integer.parseInt(destinatario)-1).getCoste_moto())+(motos.get(Integer.parseInt(idmoto)-1).getCoste()))>max_coste_moto)
                     System.out.print("\n!!!Ya no puede asignarse mas motos a este socio!!!, ingrese otro Nº de socio o 's' para volver a menu: ");
             else break;
         }while(true);
         if((miembros.get(Integer.parseInt(propietario)-1).QuitarMoto(Integer.parseInt(idmoto)))&&(miembros.get(Integer.parseInt(destinatario)-1).AsignarMoto(motos.get(Integer.parseInt(idmoto)-1)))){
-            cesion = new Cesion(miembros.get(Integer.parseInt(propietario)-1),miembros.get(Integer.parseInt(destinatario)-1),motos.get(Integer.parseInt(idmoto)-1),++id_cesion);
+            cesion = new Cesion(miembros.get(Integer.parseInt(propietario)-1),miembros.get(Integer.parseInt(destinatario)-1),motos.get(Integer.parseInt(idmoto)-1),++id_cesion, (fecha = new Date()));
             cesiones.add(cesion);
             System.out.println("\n**********************************************************\n  "
                     + "!!!La operacion fue realizada con exito!!!\n**********************************************************");
@@ -264,6 +303,16 @@ public class Main extends JFrame{
         catch(NumberFormatException ex){
             return false;
         }
+    }
+    
+    
+public Boolean comprobarMatricula(String n){
+        String aux1, aux2;
+        aux1 = n.substring(0,3);
+        aux2 = n.substring(4,7);
+        if(!(comprobarValor(aux1))||((Character.isLetter(aux2.charAt(0)))&&(Character.isLetter(aux2.charAt(2)))&&(Character.isLetter(aux2.charAt(3)))))
+                return false;
+        return true;
     }
 
     /*
@@ -351,6 +400,10 @@ public class Main extends JFrame{
                     }
 		}
 	}
+    }
+    
+    public void ingresarGastosMoto(){
+        
     }
     
     public static void main(String[] args){
