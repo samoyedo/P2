@@ -56,7 +56,9 @@ public class Main extends JFrame{
             System.out.println("4. Listar en pantalla los miembros con motos en posesión ");
             System.out.println("5. Listar todas las motos ");
             System.out.println("6. Mostrar las cesiones realizadas ");
-            System.out.println("7. Salir del programa ");
+            System.out.println("7. Ingresar gastos a moto");
+            System.out.println("8. Eliminar miembro");
+            System.out.println("9. Salir del programa ");
             System.out.print("\nIngrese el Nº de la opcion que desea: ");
             scan = scanner.nextLine();
             if(!comprobarValor(scan))
@@ -83,7 +85,11 @@ public class Main extends JFrame{
                     break;
                 case 7:
                     ingresarGastosMoto();
+                    break;
                 case 8:
+                    eliminarMiembro();
+                    break;
+                case 9:
                     Salir();
                     ok = true;
                     break;                    
@@ -409,6 +415,9 @@ public Boolean comprobarMatricula(String n){
         System.out.println("Listado de motos que pertenecen a la asociacion \n");
         listarMotos();
         
+        System.out.println("\n---------------------------------\nPara regresar al menu ingrese 's'"
+                + "\n---------------------------------");
+        
         System.out.print("\nSeleccionar Nº de ID de moto para la operacion: ");
         do{
             scan = scanner.nextLine();
@@ -436,6 +445,76 @@ public Boolean comprobarMatricula(String n){
                     + "!!!La operacion fue realizada con exito!!! \n  La moto "+motos.get(Integer.parseInt(scan)-1).getModelo()+" tiene ahora un "
                     + "gasto total de "+motos.get(Integer.parseInt(scan)-1).getGastos()+"\n**********************************************************");
        
+    }
+    
+    public void eliminarMiembro(){
+        String gastos, idmoto, dest;
+        Boolean ok=false;
+        System.out.println("Listado de miembros actuales de la asociacion \n");
+        listarMiembros();
+        
+        System.out.println("\n---------------------------------\nPara regresar al menu ingrese 's'"
+                + "\n---------------------------------");
+        
+        System.out.print("\nSeleccionar Nº de ID del miembro que desea dar de baja: ");
+        do{
+            scan = scanner.nextLine();
+            if("s".equals(scan)) return;
+            //Se comprueba que el dato introducido sea un numero y que se corresponda con el id de alguna de las motos que posee el socio
+            if((!comprobarValor(scan))||(!comprobarSocio(Integer.parseInt(scan))))
+                System.out.print("\n!!!Nº de ID incorrecto!!!, vuelva a ingresar el Nº de ID del socio: ");
+            else break;
+        }while(true);
+        
+        if(!miembros.get(Integer.parseInt(scan)-1).getMotos().isEmpty()){
+            System.out.print("\n!!!El socio "+miembros.get(Integer.parseInt(scan)-1).getNombre()+" tiene motos en su posecion!!!. A continuacion procederemos a ceder dichas motos a otros socios");
+           // -------------------------------------
+            ArrayList <Moto> aux = new ArrayList(miembros.get(Integer.parseInt(scan)-1).getMotos());   
+        
+            for(Moto moto1:motos){
+
+                muestraDestinatarios(scan);
+                System.out.print("\nIngrese Nº de socio del destinatario de la moto "+moto1.getModelo()+" con coste toral de "+moto1.getCosteTotal()+"€");
+                do{
+                    dest = scanner.nextLine();
+                    if("s".equals(dest)) return;
+                    //Se comprueba que el dato introducido sea un numero y que se corresponda con el id de alguno de los socios que se encuentran en el listado de socios
+                    // y que no se al actual, para evitar autocesiones
+                    if((!comprobarValor(dest))||(!comprobarSocio(Integer.parseInt(dest)))||(dest.equals(dest)))
+                        System.out.print("\n!!!Nº de socio incorrecto!!!, vuelva a ingresar el Nº de socio: ");
+                    //Se comprueba que la suma del coste de la moto seleccionada para la cesion y coste total de motos que posee el socio seleccionado superan los 6000
+                    else if(((miembros.get(Integer.parseInt(dest)-1).getCoste_moto())+(moto1.getCosteTotal()))>max_coste_moto)
+                            System.out.print("\n!!!Ya no puede asignarse mas motos a este socio!!!, ingrese otro Nº de socio o 's' para volver a menu: ");
+                    else ok=true;
+                }while(!ok);
+                if((miembros.get(Integer.parseInt(scan)-1).QuitarMoto(moto1.getId_moto()))&&(miembros.get(Integer.parseInt(dest)-1).AsignarMoto(moto1))){
+                    cesion = new Cesion(miembros.get(Integer.parseInt(scan)-1),miembros.get(Integer.parseInt(dest)-1),moto1,++id_cesion, (fecha = new Date()));
+                    cesiones.add(cesion);
+                    System.out.println("\n!!!Cesion realizada!!!\n  ");
+                }
+                else{
+                    System.out.println("\n**********************************************************\n  "
+                            + "!!!ERROR. La operacion No pudo ser realizada!!!\n**********************************************************");
+                    id_cesion--;
+                    return;
+                }
+            }
+        quitarSocio(scan);
+        }
+        else
+            quitarSocio(scan);
+        
+        System.out.println("\n**********************************************************\n  "
+                    + "!!!La operacion fue realizada con exito!!!\n**********************************************************");
+    }
+    
+    public void quitarSocio(String id){
+        for(Miembro miembro1:miembros){
+            if(Integer.parseInt(id) == miembro1.getId_miembro()){
+                miembros.remove(miembro1);
+            }
+        }
+        return;
     }
     
     public static void main(String[] args){
